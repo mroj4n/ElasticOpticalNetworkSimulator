@@ -25,7 +25,7 @@ public:
         return demands.size();
     }
 
-    std::vector<Demand> getDemands() const
+    std::vector<Demand>& getDemands()
     {
         return demands;
     }

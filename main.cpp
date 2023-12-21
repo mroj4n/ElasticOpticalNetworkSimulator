@@ -12,4 +12,27 @@ int main(){
 
     PreDefinedData::fillData(pathName, networkFile, pathsFile, 2);
     auto t = PreDefinedData::networkDescription->getNodeForID(0);
+
+    Request::RequestHandler requestHandler(PreDefinedData::networkDescription, PreDefinedData::possiblePaths, PreDefinedData::demands);
+    requestHandler.runSimulation();
+
+    
+}
+
+void printLinkStatus(){
+// print state of PreDefinedData::networkDescription->links
+    for (auto& link : PreDefinedData::networkDescription->links)
+    {
+        std::cout << "Link " << link.id << " [";
+        for (auto& channel : link.slotStatus)
+        {
+            if(channel == 0){
+                std::cout << "0";
+            }
+            else{
+                std::cout << "1";
+            }
+        }
+        std::cout << "]" << std::endl;
+    }
 }

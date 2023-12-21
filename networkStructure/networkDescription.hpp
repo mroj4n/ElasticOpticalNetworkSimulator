@@ -39,8 +39,8 @@ public:
         }
     }
 
-    node getNodeForID(const int64_t& id) const {
-        for (const auto& n : nodes) {
+    node& getNodeForID(const int64_t& id) {
+        for (auto& n : nodes) {
             if (n.id == id) {
                 return n;
             }
@@ -48,8 +48,8 @@ public:
         throw std::runtime_error("Node not found");
     }
 
-    link getLinkForID(const int64_t& id) const {
-        for (const auto& l : links) {
+    link& getLinkForID(const int64_t& id) {
+        for (auto& l : links) {
             if (l.id == id) {
                 return l;
             }

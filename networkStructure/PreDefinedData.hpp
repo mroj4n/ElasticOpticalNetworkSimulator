@@ -35,19 +35,29 @@ struct ModulationFormats
             {"16-QAM-long", 1600, 600, 9},
             {"32-QAM", 200, 800, 9}
     };
-    //least ampunt of slots
+    //least amount of slots
     std::optional<ModulationFormat> getBestModulationFormat(const uint32_t& distance, const float& bitrate, const uint16_t& numberOfChannels) const
     {
         float newBitrate = bitrate / numberOfChannels;
-        ModulationFormat bestModulationFormat = modulationFormats[0];
+        ModulationFormat bestModulationFormat;
+        bool foundModulationFormat = false;
+
         for (const auto& modulationFormat : modulationFormats)
         {
-            if (modulationFormat.maximumDistance >= distance && modulationFormat.maximumBitrate >= newBitrate && modulationFormat.numberOfSlots < bestModulationFormat.numberOfSlots)
+            if (modulationFormat.maximumDistance >= distance && modulationFormat.maximumBitrate >= newBitrate)
             {
-                bestModulationFormat = modulationFormat;
+                if (!foundModulationFormat)
+                {
+                    bestModulationFormat = modulationFormat;
+                    foundModulationFormat = true;
+                }
+                else if (modulationFormat.numberOfSlots < bestModulationFormat.numberOfSlots)
+                {
+                    bestModulationFormat = modulationFormat;
+                }
             }
         }
-        if (bestModulationFormat.maximumDistance < distance || bestModulationFormat.maximumBitrate < newBitrate)
+        if (!foundModulationFormat)
         {
             return std::nullopt;
         }
@@ -77,23 +87,6 @@ struct node
     }
 };
 
-
-
-struct Demand
-{
-    // Loaded from file
-    uint16_t id;//id is i * NUMBER_OF_DEMAND_FILES_PER_DEMAND + j if the file is from demands_i/j.txt
-    node from;
-    node to;
-    std::vector<float> bitrates;
-
-    bool isAllocated = false;
-    uint16_t numberOfChannels = 0;
-    uint16_t bitrate_counter = 0;
-
-    ModulationFormats::ModulationFormat assignedModulationFormat;
-};
-
 struct link
 {
     uint16_t id;
@@ -107,6 +100,27 @@ struct link
     bool operator<(const link& other) const
     {
         return distance < other.distance;
+    }
+
+    std::optional<uint16_t> getIndexForFreeSlots(uint16_t numberOfSlots) const
+    {
+        uint16_t counter = 0;
+        for (uint16_t i = 0; i < NUMBER_OF_SLOTS_PER_NODE; ++i)
+        {
+            if (slotStatus[i] == false)
+            {
+                counter++;
+                if (counter == numberOfSlots)
+                {
+                    return i - counter + 1;
+                }
+            }
+            else
+            {
+                counter = 0;
+            }
+        }
+        return std::nullopt;
     }
 
     // method to reserve slots in the current link based on the index from checkSlots
@@ -131,6 +145,7 @@ struct link
 
 struct Path
 {
+    uint16_t id;
     node from;
     node to;
     std::vector<link> links;
@@ -148,19 +163,57 @@ struct Path
         return highestDistance;
     }
 
-    bool areAllLinksInPathFree() const
+    bool operator!=(const Path& other) const
     {
-        for (const auto& link : links)
+        return id != other.id;
+    }
+};
+
+struct Demand
+{
+    // Loaded from file
+    uint16_t id;//id is i * NUMBER_OF_DEMAND_FILES_PER_DEMAND + j if the file is from demands_i/j.txt
+    node from;
+    node to;
+    std::vector<float> bitrates;
+
+    bool isAllocated = false;
+    uint16_t numberOfChannels = 0;
+    uint16_t bitrate_counter = 0;
+    Path selectedPath;
+
+    ModulationFormats::ModulationFormat assignedModulationFormat;
+
+    bool operator==(const Demand& other) const
+    {
+        return id == other.id;
+    }
+
+    bool didDemandChange(const Demand& other) const
+    {
+        if (other.from != from || other.to != to)
         {
-            for (const auto& slot : link.slotStatus)
-            {
-                if (slot)
-                {
-                    return false;
-                }
-            }
+            throw std::runtime_error("Demands are not the same");
         }
-        return true;
+        //print what is actually different
+        if (isAllocated != other.isAllocated)
+        {
+            std::cout << "Demand " << id << " isAllocated changed from " << other.isAllocated << " to " << isAllocated << std::endl;
+        }
+        if (numberOfChannels != other.numberOfChannels)
+        {
+            std::cout << "Demand " << id << " numberOfChannels changed from " << other.numberOfChannels << " to " << numberOfChannels << std::endl;
+        }
+        if (assignedModulationFormat != other.assignedModulationFormat)
+        {
+            std::cout << "Demand " << id << " assignedModulationFormat changed from " << other.assignedModulationFormat.name << " to " << assignedModulationFormat.name << std::endl;
+        }
+        if (selectedPath != other.selectedPath)
+        {
+            std::cout << "Demand " << id << " selectedPath changed from " << other.selectedPath.id << " to " << selectedPath.id << std::endl;
+        }
+
+        return isAllocated != other.isAllocated || numberOfChannels != other.numberOfChannels || assignedModulationFormat != other.assignedModulationFormat || selectedPath != other.selectedPath;
     }
 };
 }

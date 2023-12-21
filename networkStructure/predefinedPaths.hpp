@@ -43,6 +43,7 @@ public:
                         Path p;
                         p.from = networkDescription->getNodeForID(i);
                         p.to = networkDescription->getNodeForID(j);
+                        p.id = i * numOfNodes + j * NUMBER_OF_PATHS_PER_PAIR + k;
 
                         // Read the line for this path
                         std::getline(file, line);
