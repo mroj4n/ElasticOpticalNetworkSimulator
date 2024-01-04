@@ -93,7 +93,7 @@ struct link
     node from;
     node to;
     uint32_t distance; // in kilometers
-    
+
 
     bool slotStatus[NUMBER_OF_SLOTS_PER_NODE] = { false }; // false = free, true = occupied
 
@@ -153,7 +153,7 @@ struct Path
     uint32_t getHighestDistance() const
     {
         uint32_t highestDistance = 0;
-        for (const auto& link: links)
+        for (const auto& link : links)
         {
             if (link.distance > highestDistance)
             {
@@ -166,6 +166,18 @@ struct Path
     bool operator!=(const Path& other) const
     {
         return id != other.id;
+    }
+
+    bool doesAllLinksHaveFreeSlotsForChannels(uint16_t numberOfChannels) const
+    {
+        for (const auto& link : links)
+        {
+            if (!link.getIndexForFreeSlots(numberOfChannels).has_value())
+            {
+                return false;
+            }
+        }
+        return true;
     }
 };
 
@@ -189,28 +201,30 @@ struct Demand
         return id == other.id;
     }
 
-    bool didDemandChange(const Demand& other) const
+    bool didDemandChange(const Demand& other, bool printChanges = false) const
     {
         if (other.from != from || other.to != to)
         {
             throw std::runtime_error("Demands are not the same");
         }
-        //print what is actually different
-        if (isAllocated != other.isAllocated)
-        {
-            std::cout << "Demand " << id << " isAllocated changed from " << other.isAllocated << " to " << isAllocated << std::endl;
-        }
-        if (numberOfChannels != other.numberOfChannels)
-        {
-            std::cout << "Demand " << id << " numberOfChannels changed from " << other.numberOfChannels << " to " << numberOfChannels << std::endl;
-        }
-        if (assignedModulationFormat != other.assignedModulationFormat)
-        {
-            std::cout << "Demand " << id << " assignedModulationFormat changed from " << other.assignedModulationFormat.name << " to " << assignedModulationFormat.name << std::endl;
-        }
-        if (selectedPath != other.selectedPath)
-        {
-            std::cout << "Demand " << id << " selectedPath changed from " << other.selectedPath.id << " to " << selectedPath.id << std::endl;
+        if (printChanges) {
+            //print what is actually different
+            if (isAllocated != other.isAllocated)
+            {
+                std::cout << "Demand " << id << " isAllocated changed from " << other.isAllocated << " to " << isAllocated << std::endl;
+            }
+            if (numberOfChannels != other.numberOfChannels)
+            {
+                std::cout << "Demand " << id << " numberOfChannels changed from " << other.numberOfChannels << " to " << numberOfChannels << std::endl;
+            }
+            if (assignedModulationFormat != other.assignedModulationFormat)
+            {
+                std::cout << "Demand " << id << " assignedModulationFormat changed from " << other.assignedModulationFormat.name << " to " << assignedModulationFormat.name << std::endl;
+            }
+            if (selectedPath != other.selectedPath)
+            {
+                std::cout << "Demand " << id << " selectedPath changed from " << other.selectedPath.id << " to " << selectedPath.id << std::endl;
+            }
         }
 
         return isAllocated != other.isAllocated || numberOfChannels != other.numberOfChannels || assignedModulationFormat != other.assignedModulationFormat || selectedPath != other.selectedPath;

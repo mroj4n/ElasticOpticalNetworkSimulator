@@ -29,9 +29,9 @@ public:
         {
             demand.bitrate_counter = 0;
 
+            handleDemand(demand);
             auto path = selectPath(possiblePaths->getPathsForNodePair(demand.from, demand.to), demand);
             demand.selectedPath = path;
-            handleDemand(demand);
             allocateSlot(demand);
 
             std::cout << "Demand " << demand.id << " is allocated" << " with number of channels " << demand.numberOfChannels << " and modulation format " << demand.assignedModulationFormat.name << " distance " << demand.selectedPath.getHighestDistance() << std::endl;
@@ -45,10 +45,10 @@ public:
             {
                 demand.bitrate_counter = i;
                 auto refDemand = demand;
+                handleDemand(demand);
                 auto path = selectPath(possiblePaths->getPathsForNodePair(demand.from, demand.to), demand);
                 demand.selectedPath = path;
-                handleDemand(demand);
-                
+
 
                 if (!demand.didDemandChange(refDemand))
                 {
@@ -57,7 +57,9 @@ public:
 
                 allocateSlot(demand);
                 if (demand.didDemandChange(refDemand) && demand.isAllocated) {
-                    std::cout << "Demand " << demand.id << " is deallocated" << " new bitrate " << demand.bitrates[demand.bitrate_counter] << " new modulation format " << demand.assignedModulationFormat.name << " old bitrate " << refDemand.bitrates[refDemand.bitrate_counter-1] << " old modulation format " << refDemand.assignedModulationFormat.name << std::endl;
+                    //std::cout << "Demand " << demand.id << " is deallocated" << " new bitrate " << demand.bitrates[demand.bitrate_counter] << " new modulation format " << demand.assignedModulationFormat.name << " old bitrate " << refDemand.bitrates[refDemand.bitrate_counter - 1] << " old modulation format " << refDemand.assignedModulationFormat.name << std::endl;
+                    // print number of channels old and new
+                    std::cout << "Demand " << demand.id << " is allocated" << " with number of channels " << demand.numberOfChannels << " and modulation format " << demand.assignedModulationFormat.name << " distance " << demand.selectedPath.getHighestDistance() << std::endl;
                 }
 
             }
@@ -71,10 +73,16 @@ public:
         for (const auto& path : paths)
         {
             if (path.from == demand.from && path.to == demand.to)
+            {
+                if (path.doesAllLinksHaveFreeSlotsForChannels(demand.numberOfChannels))
+                {
+                    return path;
+                }
+            }
 
-                return path;
             //TODO: check if path is not already used
         }
+        std::cout << "Could not find a path for the demand " << demand.id << std::endl;
         throw std::runtime_error("Could not find a path for the demand");
     }
 
