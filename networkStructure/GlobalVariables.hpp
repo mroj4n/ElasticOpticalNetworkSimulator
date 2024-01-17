@@ -3,6 +3,8 @@
 #include "NetworkDescription.hpp"
 #include "PredefinedPaths.hpp"
 #include "Demands.hpp"
+#include "utils/logger.hpp"
+
 namespace PreDefinedData
 {
 extern std::shared_ptr<NetworkDescription> networkDescription;

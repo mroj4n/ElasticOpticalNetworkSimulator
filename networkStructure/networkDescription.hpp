@@ -45,6 +45,7 @@ public:
                 return n;
             }
         }
+        logger.error("Node not found");
         throw std::runtime_error("Node not found");
     }
 
@@ -54,6 +55,7 @@ public:
                 return l;
             }
         }
+        logger.error("Link not found");
         throw std::runtime_error("Link not found");
     }
 
@@ -65,7 +67,26 @@ public:
         return links.size();
     }
 
+    void printLinksStatus(){
+        for (auto& link : links)
+        {
+            std::string s = "";
+            s += "Link " + std::to_string(link.id) + " [";
 
+            for (auto& channel : link.slotStatus)
+            {
+                if(channel == 0){
+                    s += "0";
+                }
+                else{
+                    s += "1";
+                }
+            }
+            s += "]";
+
+            logger.debug(s);
+        }
+    }
     std::vector<node> nodes;
     std::vector<link> links;
 };

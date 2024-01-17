@@ -8,11 +8,12 @@
 #include <iostream>
 #include <optional>
 #include <map>
+#include "utils/logger.hpp"
 namespace PreDefinedData
 {
 
 #define NUMBER_OF_SLOTS_PER_NODE 320
-#define NUMBER_OF_DEMAND_FILES_PER_DEMAND 99 // 99 demand files per demand: Given dataset
+#define NUMBER_OF_DEMAND_FILES_PER_DEMAND 500 // 99 demand files per demand: Given dataset
 
 struct ModulationFormats
 {
@@ -167,18 +168,6 @@ struct Path
     {
         return id != other.id;
     }
-
-    bool doesAllLinksHaveFreeSlotsForChannels(uint16_t numberOfChannels) const
-    {
-        for (const auto& link : links)
-        {
-            if (!link.getIndexForFreeSlots(numberOfChannels).has_value())
-            {
-                return false;
-            }
-        }
-        return true;
-    }
 };
 
 struct Demand
@@ -190,6 +179,12 @@ struct Demand
     std::vector<float> bitrates;
 
     bool isAllocated = false;
+    struct AllocatedPath
+    {
+        std::vector<link> links;
+        std::vector<int> slotIndex;
+    };
+    AllocatedPath allocatedPath;
     uint16_t numberOfChannels = 0;
     uint16_t bitrate_counter = 0;
     Path selectedPath;
@@ -201,31 +196,31 @@ struct Demand
         return id == other.id;
     }
 
-    bool didDemandChange(const Demand& other, bool printChanges = false) const
+    bool didDemandChange(const Demand& other) const
     {
-        if (other.from != from || other.to != to)
+        if (other.from != from || other.to != to && other.id != id)
         {
             throw std::runtime_error("Demands are not the same");
         }
-        if (printChanges) {
-            //print what is actually different
-            if (isAllocated != other.isAllocated)
-            {
-                std::cout << "Demand " << id << " isAllocated changed from " << other.isAllocated << " to " << isAllocated << std::endl;
-            }
-            if (numberOfChannels != other.numberOfChannels)
-            {
-                std::cout << "Demand " << id << " numberOfChannels changed from " << other.numberOfChannels << " to " << numberOfChannels << std::endl;
-            }
-            if (assignedModulationFormat != other.assignedModulationFormat)
-            {
-                std::cout << "Demand " << id << " assignedModulationFormat changed from " << other.assignedModulationFormat.name << " to " << assignedModulationFormat.name << std::endl;
-            }
-            if (selectedPath != other.selectedPath)
-            {
-                std::cout << "Demand " << id << " selectedPath changed from " << other.selectedPath.id << " to " << selectedPath.id << std::endl;
-            }
+
+        //print what is actually different
+        if (isAllocated != other.isAllocated)
+        {
+            logger.debug("Demand " + std::to_string(id) + " isAllocated changed from " + std::to_string(other.isAllocated) + " to " + std::to_string(isAllocated));
         }
+        if (numberOfChannels != other.numberOfChannels)
+        {
+            logger.debug("Demand " + std::to_string(id) + " numberOfChannels changed from " + std::to_string(other.numberOfChannels) + " to " + std::to_string(numberOfChannels));
+        }
+        if (assignedModulationFormat != other.assignedModulationFormat)
+        {
+            logger.debug("Demand " + std::to_string(id) + " assignedModulationFormat changed from " + other.assignedModulationFormat.name + " to " + assignedModulationFormat.name);
+        }
+        if (selectedPath != other.selectedPath)
+        {
+            logger.debug("Demand " + std::to_string(id) + " selectedPath changed from " + std::to_string(other.selectedPath.id) + " to " + std::to_string(selectedPath.id));
+        }
+
 
         return isAllocated != other.isAllocated || numberOfChannels != other.numberOfChannels || assignedModulationFormat != other.assignedModulationFormat || selectedPath != other.selectedPath;
     }

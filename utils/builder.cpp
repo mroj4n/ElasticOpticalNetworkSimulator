@@ -1,4 +1,4 @@
-#include "data.hpp"
+#include "networkStructure/GlobalVariables.hpp"
 #include <string>
 
 #include <iostream>
@@ -20,9 +20,12 @@ namespace PreDefinedData
             demands = std::make_shared<Demands>(pathName, numberOfDemands, networkDescription);
 
             dataFilled = true;
+            logger.debug("Data filled");
         }
         catch (const std::exception &e)
         {
+            logger.error("Error while filling data");
+            logger.error(e.what());
             std::cerr << e.what() << '\n';
         }
     } // fillData(
