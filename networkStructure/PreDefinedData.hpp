@@ -8,12 +8,12 @@
 #include <iostream>
 #include <optional>
 #include <map>
-#include "utils/logger.hpp"
+#include "../utils/logger.hpp"
 namespace PreDefinedData
 {
 
 #define NUMBER_OF_SLOTS_PER_NODE 320
-#define NUMBER_OF_DEMAND_FILES_PER_DEMAND 500 // 99 demand files per demand: Given dataset
+#define NUMBER_OF_DEMAND_FILES_PER_DEMAND 500 // 500 demand files per demand: Given dataset
 
 struct ModulationFormats
 {
@@ -62,6 +62,8 @@ struct ModulationFormats
         {
             return std::nullopt;
         }
+        logger.debug("Best modulation format for distance " + std::to_string(distance) + " and bitrate " + std::to_string(bitrate) + " number of channels " + std::to_string(numberOfChannels) + " is " + bestModulationFormat.name);
+        bestModulationFormat.numberOfSlots *= numberOfChannels;
         return bestModulationFormat;
     }
 };
@@ -103,6 +105,10 @@ struct link
         return distance < other.distance;
     }
 
+    bool operator==(const link& other) const
+    {
+        return id == other.id && from == other.from && to == other.to && distance == other.distance;
+    }
     std::optional<uint16_t> getIndexForFreeSlots(uint16_t numberOfSlots) const
     {
         uint16_t counter = 0;
@@ -127,6 +133,7 @@ struct link
     // method to reserve slots in the current link based on the index from checkSlots
     void allocate(const int& index, const int& numberOfSlots)
     {
+        logger.debug("Allocating " + std::to_string(numberOfSlots) + " slots in link " + std::to_string(id) + " starting at index " + std::to_string(index));
         for (int i = index; i < index + numberOfSlots; ++i)
         {
             slotStatus[i] = true;
@@ -136,6 +143,7 @@ struct link
     // method to free slots in the current link based on the index from checkSlots
     void deallocate(const int& index, const int& numberOfSlots)
     {
+        logger.debug("Deallocating " + std::to_string(numberOfSlots) + " slots in link " + std::to_string(id) + " starting at index " + std::to_string(index));
         for (int i = index; i < index + numberOfSlots; ++i)
         {
             slotStatus[i] = false;
@@ -163,7 +171,20 @@ struct Path
         }
         return highestDistance;
     }
-
+    std::string getLinksInPath() const
+    {
+        std::string s = "[";
+        for (const auto& link : links)
+        {
+            s += std::to_string(link.id) + ",";
+        }
+        s += "]";
+        return s;
+    }
+    bool operator==(const Path& other) const
+    {
+        return id == other.id;
+    }
     bool operator!=(const Path& other) const
     {
         return id != other.id;
@@ -189,8 +210,17 @@ struct Demand
     uint16_t bitrate_counter = 0;
     Path selectedPath;
 
-    ModulationFormats::ModulationFormat assignedModulationFormat;
+    ModulationFormats::ModulationFormat assignedModulationFormat= {"QPSK", std::numeric_limits<uint16_t>::max(), 200, 6};
 
+    void changeAllocation(bool isAllocated){
+        logger.debug("Demand " + std::to_string(id) + " isAllocated changed from " + std::to_string(this->isAllocated) + " to " + std::to_string(isAllocated));
+
+        if(this->isAllocated == isAllocated)
+        {
+            logger.error("Demand " + std::to_string(id) + " isAllocated not changed from! ");
+        }
+        this->isAllocated = isAllocated;
+    }
     bool operator==(const Demand& other) const
     {
         return id == other.id;
@@ -200,25 +230,26 @@ struct Demand
     {
         if (other.from != from || other.to != to && other.id != id)
         {
+            logger.error("Demands " + std::to_string(id) + " and " + std::to_string(other.id) + " are not the same");
             throw std::runtime_error("Demands are not the same");
         }
 
         //print what is actually different
         if (isAllocated != other.isAllocated)
         {
-            logger.debug("Demand " + std::to_string(id) + " isAllocated changed from " + std::to_string(other.isAllocated) + " to " + std::to_string(isAllocated));
+            logger.info("Demand " + std::to_string(id) + " isAllocated changed from " + std::to_string(other.isAllocated) + " to " + std::to_string(isAllocated));
         }
         if (numberOfChannels != other.numberOfChannels)
         {
-            logger.debug("Demand " + std::to_string(id) + " numberOfChannels changed from " + std::to_string(other.numberOfChannels) + " to " + std::to_string(numberOfChannels));
+            logger.info("Demand " + std::to_string(id) + " numberOfChannels changed from " + std::to_string(other.numberOfChannels) + " to " + std::to_string(numberOfChannels));
         }
         if (assignedModulationFormat != other.assignedModulationFormat)
         {
-            logger.debug("Demand " + std::to_string(id) + " assignedModulationFormat changed from " + other.assignedModulationFormat.name + " to " + assignedModulationFormat.name);
+            logger.info("Demand " + std::to_string(id) + " assignedModulationFormat changed from " + other.assignedModulationFormat.name + " to " + assignedModulationFormat.name);
         }
         if (selectedPath != other.selectedPath)
         {
-            logger.debug("Demand " + std::to_string(id) + " selectedPath changed from " + std::to_string(other.selectedPath.id) + " to " + std::to_string(selectedPath.id));
+            logger.info("Demand " + std::to_string(id) + " selectedPath changed from " + std::to_string(other.selectedPath.id) + " to " + std::to_string(selectedPath.id));
         }
 
 

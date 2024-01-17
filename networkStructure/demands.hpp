@@ -7,16 +7,25 @@ namespace PreDefinedData
 class Demands
 {
 public:
-    Demands(const std::string pathname, const uint16_t& numberOfDemands, std::shared_ptr<NetworkDescription> networkDescription)
+    // Demands(const std::string pathname, const uint16_t& numberOfDemands, std::shared_ptr<NetworkDescription> networkDescription)
+    // {
+    //     for (uint16_t i = 0; i < numberOfDemands; i++)
+    //     {
+    //         for (uint16_t j = 0; j < NUMBER_OF_DEMAND_FILES_PER_DEMAND; j++)
+    //         {
+    //             const std::string filename = pathname + "demands_" + std::to_string(i) + "/" + std::to_string(j) + ".txt";
+    //             uint16_t id = i * NUMBER_OF_DEMAND_FILES_PER_DEMAND + j;
+    //             parseDemandFile(filename, networkDescription, id);
+    //         }
+    //     }
+    // }
+    Demands(const std::string pathname, const uint16_t& demandNumber, std::shared_ptr<NetworkDescription> networkDescription)
     {
-        for (uint16_t i = 0; i < numberOfDemands; i++)
+        for (uint16_t j = 0; j < NUMBER_OF_DEMAND_FILES_PER_DEMAND; j++)
         {
-            for (uint16_t j = 0; j < NUMBER_OF_DEMAND_FILES_PER_DEMAND; j++)
-            {
-                const std::string filename = pathname + "demands_" + std::to_string(i) + "/" + std::to_string(j) + ".txt";
-                uint16_t id = i * NUMBER_OF_DEMAND_FILES_PER_DEMAND + j;
-                parseDemandFile(filename, networkDescription, id);
-            }
+            const std::string filename = pathname + "demands_" + std::to_string(demandNumber) + "/" + std::to_string(j) + ".txt";
+            uint16_t id = j;
+            parseDemandFile(filename, networkDescription, id);
         }
     }
 

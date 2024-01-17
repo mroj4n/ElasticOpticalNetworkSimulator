@@ -16,7 +16,11 @@ Makefile
 # Compiled object files
 *.o
 *.obj
-
+x64/
+cProj.dir/
+Debug/
+log.log
+networkState.log
 # IDE-specific files
 .vscode/
 .idea/
@@ -24,3 +28,4 @@ Makefile
 *.vcxproj
 *.xcodeproj
 *.user
+*.filters

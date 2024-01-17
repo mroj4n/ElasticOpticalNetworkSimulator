@@ -1,4 +1,4 @@
-#include "networkStructure/GlobalVariables.hpp"
+#include "../networkStructure/GlobalVariables.hpp"
 #include <string>
 
 #include <iostream>
@@ -11,16 +11,16 @@ namespace PreDefinedData
     std::shared_ptr<Demands> demands = nullptr;
     bool dataFilled = false;
 
-    void fillData(const std::string &pathName, const std::string &networkFile, const std::string &pathsFile, const uint16_t &numberOfDemands)
+    void fillData(const std::string &pathName, const std::string &networkFile, const std::string &pathsFile, const uint16_t &demandNumber)
     {
         try
         {
             networkDescription = std::make_shared<NetworkDescription>(networkFile);
             possiblePaths = std::make_shared<PossiblePaths>(pathsFile, networkDescription);
-            demands = std::make_shared<Demands>(pathName, numberOfDemands, networkDescription);
+            demands = std::make_shared<Demands>(pathName, demandNumber, networkDescription);
 
             dataFilled = true;
-            logger.debug("Data filled");
+            logger.info("Data for demand " + std::to_string(demandNumber) + " filled");
         }
         catch (const std::exception &e)
         {

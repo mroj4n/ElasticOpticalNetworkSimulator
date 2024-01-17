@@ -54,19 +54,6 @@ private:
             rename("temp.log", logFilePath.c_str());
         }
     }
-public:
-
-    Logger()
-    {
-        logFilePath = "log.log";
-        clearLogFile();
-    }
-    Logger(std::string logFilePath, bool printDebug = false)
-    {
-        this->printDebug = printDebug;
-        this->logFilePath = logFilePath;
-        clearLogFile();
-    }
     std::string getFlag(LogType logType)
     {
         switch (logType)
@@ -87,6 +74,25 @@ public:
             return "[UNKNOWN]";
             break;
         }
+    }
+public:
+
+    Logger()
+    {
+        logFilePath = "log.log";
+        clearLogFile();
+    }
+    Logger(std::string logFilePath, bool printDebug = false)
+    {
+        this->printDebug = printDebug;
+        this->logFilePath = logFilePath;
+        clearLogFile();
+    }
+    
+    void changeFilePath(std::string logFilePath)
+    {
+        this->logFilePath = logFilePath;
+        clearLogFile();
     }
     void info(std::string message)
     {
@@ -115,9 +121,16 @@ public:
         logFile << getFlag(LogType::ERROR) << " " << message << std::endl;
         logFile.close();
     }
+    void writeNetworkState(std::string message)
+    {
+        logFile.open(logFilePath, std::ofstream::out | std::ofstream::app);
+        logFile << message << std::endl;
+        logFile.close();
+    }
     ~Logger()
     {
     }
 };
 }
 extern Logger::Logger logger;
+extern Logger::Logger networkStatePrinter;

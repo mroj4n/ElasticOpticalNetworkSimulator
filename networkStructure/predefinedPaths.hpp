@@ -84,6 +84,19 @@ public:
         return pathsForNodePair;
     }
 
+    void printPaths() const
+    {
+        for (auto& path : paths)
+        {
+            std::string s = std::to_string(path.id) + ":[";
+
+            for (auto& link : path.links)
+            {
+                s += std::to_string(link.id) + ",";
+            }
+            logger.info(s + "]");
+        }
+    }
 private:
     std::vector<Path> paths;
     std::map<std::pair<node, node>, std::vector<Path>> pathsMap;
