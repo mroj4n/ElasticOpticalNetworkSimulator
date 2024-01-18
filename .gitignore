@@ -19,8 +19,8 @@ Makefile
 x64/
 cProj.dir/
 Debug/
-log.log
-networkState.log
+*.log
+
 # IDE-specific files
 .vscode/
 .idea/

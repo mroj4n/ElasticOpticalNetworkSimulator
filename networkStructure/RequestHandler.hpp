@@ -46,9 +46,6 @@ public:
             logger.info("Running simulation for " + std::to_string(i) + " seconds");
             for (auto& demand : demands->getDemands())
             {
-                logger.info("Handling demand " + std::to_string(demand.id) + " Bitrate:" + std::to_string(demand.bitrates[demand.bitrate_counter]) + " for " + std::to_string(i) + " seconds");
-                std::string networkStateMessage = std::to_string(i) + "," + std::to_string(demand.id) + "," + std::to_string(demand.isAllocated) + "," + std::to_string(demand.assignedModulationFormat.numberOfSlots) + "," + demand.assignedModulationFormat.name +","+ std::to_string(demand.numberOfChannels);
-                networkStatePrinter.writeNetworkState(networkStateMessage);
 
                 auto refDemand = demand;
                 // Break simulation if there is no demand at current counter
@@ -59,6 +56,9 @@ public:
                     std::cout << "Skipping demand" << std::endl;
                     continue;;
                 }
+                logger.info("Handling demand " + std::to_string(demand.id) + " Bitrate:" + std::to_string(demand.bitrates[demand.bitrate_counter]) + " for " + std::to_string(i) + " seconds");
+                std::string networkStateMessage = std::to_string(i) + "," + std::to_string(demand.id)+","+std::to_string(demand.bitrates[demand.bitrate_counter]) + "," + std::to_string(demand.isAllocated) + "," + std::to_string(demand.assignedModulationFormat.numberOfSlots) + "," + demand.assignedModulationFormat.name +","+ std::to_string(demand.numberOfChannels);
+                networkStatePrinter.writeNetworkState(networkStateMessage);
 
                 auto path = selectPath(possiblePaths->getPathsForNodePair(demand.from, demand.to), demand);
                 if (!path.has_value())

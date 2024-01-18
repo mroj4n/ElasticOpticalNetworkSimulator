@@ -16,7 +16,7 @@ int main() {
     for (uint16_t i = 0; i < NUMBER_OF_DEMANDS; i++) {
         logger.changeFilePath("POL12logs/demand" + std::to_string(i) + ".log");
         networkStatePrinter.changeFilePath("POL12logs/networkState_demand" + std::to_string(i) + ".log");
-        networkStatePrinter.writeNetworkState("seconds,demand_id,isAllocated,numberOfSlots,modulationFormat,numberOfChannels");
+        networkStatePrinter.writeNetworkState("seconds,demand_id,bitrate,isAllocated,numberOfSlots,modulationFormat,numberOfChannels");
 
         std::cout << "Starting Demand " << i << std::endl;
         PreDefinedData::fillData(pathName, networkFile, pathsFile, i);
@@ -32,7 +32,7 @@ int main() {
     for (uint16_t i = 0; i < NUMBER_OF_DEMANDS; i++) {
         logger.changeFilePath("US26logs/demand" + std::to_string(i) + ".log");
         networkStatePrinter.changeFilePath("US26logs/networkState_demand" + std::to_string(i) + ".log");
-        networkStatePrinter.writeNetworkState("seconds,demand_id,isAllocated,numberOfSlots,modulationFormat,numberOfChannels");
+        networkStatePrinter.writeNetworkState("seconds,demand_id,bitrate,isAllocated,numberOfSlots,modulationFormat,numberOfChannels");
 
         std::cout << "Starting Demand " << i << std::endl;
         PreDefinedData::fillData(pathName, networkFile, pathsFile, i);

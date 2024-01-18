@@ -6,6 +6,5 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/utils)
 set(PROJECT_SOURCE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/utils/builder.cpp
-    # Add other source files here
 )
 
