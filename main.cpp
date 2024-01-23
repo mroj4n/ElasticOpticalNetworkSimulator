@@ -5,7 +5,7 @@
 #include "networkStructure/GlobalVariables.hpp"
 #include "networkStructure/RequestHandler.hpp"
 
-#define NUMBER_OF_DEMANDS 9
+#define NUMBER_OF_DEMANDS 10
 
 Logger::Logger logger("log.log", true); // Create a logger object with the log file path and printDebug flag
 Logger::Logger networkStatePrinter("networkState.log", true);
